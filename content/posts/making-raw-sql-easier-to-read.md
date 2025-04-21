@@ -119,7 +119,7 @@ rows = cursor.fetchall()
 for r in rows:
     print(f"{r.id} - {r.isbn} - {r.title}")
 ```
-Or another version onv psycopg
+Or another version of psycopg
 
 ### Psycopg3 With Dataclass
 ```python
