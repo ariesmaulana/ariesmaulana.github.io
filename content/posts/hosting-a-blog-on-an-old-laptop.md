@@ -3,7 +3,7 @@ title: "Hosting a Blog on an Old Laptop"
 date: 2025-06-01T10:46:13+07:00
 slug: 2025-06-01-hosting-a-blog-on-an-old-laptop
 type: posts
-draft: true
+draft: false
 categories:
   - default
 tags:
