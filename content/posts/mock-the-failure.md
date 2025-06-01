@@ -10,6 +10,7 @@ tags:
   - python
   - django
   - test
+  - pytest
 ---
 
 I'm not a big fan of mocking, especially when working with databases. For me, when we create tests involving a database, we can't just mock the result because I want to make sure my code actually stores the correct data. I think it is important to verify that the data is stored correctly during testing. Even if we have a nice algorithm in our code, if the stored data is incorrect, it becomes useless.
