@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>The Reason I Stay Away From Generic Cbv</title>
+	
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+	
+</head>
+<body>
+	<header>
+	======<br>
+	== <a href="//localhost:1313/"></a> ==<br>
+	======
+	<div style="float: right;">Note Arsmp!</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>Start</b></a>.
+			
+			
+			<a href="/posts/"><b>Posts</b></a>.
+			
+			<a href="/categories/"><b>Categories</b></a>.
+			
+			<a href="/tags/"><b>Tags</b></a>.
+			
+	</nav>
+	</p>
+	
+</header>
+
+	
+	<main>
+		<article>
+			<h1>The Reason I Stay Away From Generic Cbv</h1>
+			<b><time>17.04.2025 22:23</time></b>
+		       
+		           <a href="/tags/python">python</a>
+        	       
+		           <a href="/tags/django">django</a>
+        	       
+
+			<div>
+				<p>When I write code in Django for the first time, I feel mesmerized by class-based views (CBV), especially the generic views. Look at this CBV example using Django REST Framework:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># serializer.py</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PostSerializer</span>(serializers<span style="color:#f92672">.</span>ModelSerializer):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Meta</span>:
+</span></span><span style="display:flex;"><span>        model <span style="color:#f92672">=</span> Post
+</span></span><span style="display:flex;"><span>        fields <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;__all__&#39;</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># views</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PostListCreate</span>(ListCreateAPIView):
+</span></span><span style="display:flex;"><span>     serializer_class <span style="color:#f92672">=</span> PostSerializer
+</span></span><span style="display:flex;"><span>     queryset <span style="color:#f92672">=</span> Post<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>all()
+</span></span><span style="display:flex;"><span>     
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PostEdit</span>(RetrieveUpdateDestroyAPIView):
+</span></span><span style="display:flex;"><span>    serializer_class <span style="color:#f92672">=</span> PostSerializer
+</span></span><span style="display:flex;"><span>    queryset <span style="color:#f92672">=</span> Post<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>all()
+</span></span></code></pre></div><p>With this simple code, I already built full CRUD functionality. This code already supports:</p>
+<ul>
+<li>
+<p>List all &ldquo;Post&rdquo;</p>
+</li>
+<li>
+<p>Insert new &ldquo;Post&rdquo;</p>
+</li>
+<li>
+<p>Detail of the &ldquo;Post&rdquo;</p>
+</li>
+<li>
+<p>Update the &ldquo;Post&rdquo;</p>
+</li>
+<li>
+<p>Delete the &ldquo;Post&rdquo;</p>
+</li>
+<li>
+<p>Validation based on the Post model</p>
+</li>
+</ul>
+<p>Feels like magic, right? Sometimes when I use Generic CBV, it feels like just adding configuration rather than writing real code.
+But for now, I prefer Function-Based Views (FBV).</p>
+<p>There’s nothing wrong with CBV, but the generic ones feel too magic for me. In my opinion, it can be hard to collaborate with other team member especially if someone is new to Django.</p>
+<p>With generic CBV, it&rsquo;s easy to create a new feature, but it gradually becomes hard to update that feature. Look again at that example, now imagine we need to add more functionality:</p>
+<ul>
+<li>
+<p>Add pagination</p>
+</li>
+<li>
+<p>Add custom validation</p>
+</li>
+<li>
+<p>Add authorization</p>
+</li>
+<li>
+<p>Add a custom response</p>
+</li>
+</ul>
+<p>So&hellip; where do you put those things?</p>
+<p>In the example above, i didn’t write much code, i just passed some params to the existing class. But now where should I put pagination? In model? View? Serializer?
+Where should I put validation? Model? View? Serializer?</p>
+<p>If you’re experienced with Django CBV, that might sound easy.
+But for a new to django it’s really confusing.</p>
+<p>That’s why I now prefer FBV.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@api_view</span>([<span style="color:#e6db74">&#39;GET&#39;</span>, <span style="color:#e6db74">&#39;POST&#39;</span>])
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">list_and_create</span>(request):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> request<span style="color:#f92672">.</span>method <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;POST&#39;</span>:
+</span></span><span style="display:flex;"><span>       <span style="color:#75715e"># Validasi sebelum diproses </span>
+</span></span><span style="display:flex;"><span>       <span style="color:#75715e"># Persiapkan data </span>
+</span></span><span style="display:flex;"><span>       <span style="color:#75715e"># Insert ke database </span>
+</span></span><span style="display:flex;"><span>       <span style="color:#75715e"># return 201 jika sukses</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># get data dari database</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># return 200 jika ada, return 200 tetap dilakukan jika data 0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@api_view</span>([<span style="color:#e6db74">&#39;GET&#39;</span>, <span style="color:#e6db74">&#39;PUT&#39;</span>, <span style="color:#e6db74">&#39;DELETE&#39;</span>])
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">detail_update_delete</span>(request, pk):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> request<span style="color:#f92672">.</span>method <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;GET&#39;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># validation</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># get data</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># return 200 if success</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># return 404 if not found</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> request<span style="color:#f92672">.</span>method <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;PUT&#39;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># validation</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># actual process</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># return</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># validation</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># get data</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># return 200 if success</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># return 404 if not found</span>
+</span></span></code></pre></div><p>Yes, it’s more verbose.
+But when we want to add new functionality, we can do it easily, because all the code is there.</p>
+<p>Maybe it takes more time when creating a new feature, but it’s much easier to add or update functionality later.</p>
+<p>And if you still want to use CBV, I recommend using APIView instead of the generic views.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PostView</span>(APIView):
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get</span>(self, request):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">post</span>(self, request):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">put</span>(self, request, pk):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">delete</span>(self, request, pk):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span></code></pre></div>
+			</div>
+		</article>
+        <section id="comments">
+    <script src="https://utteranc.es/client.js"
+            repo="ariesmaulana/note"
+            issue-term="pathname"
+            theme="preferred-color-scheme"
+            crossorigin="anonymous"
+            async>
+    </script>
+  </section>
+  
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/posts/2025-06-24-understanding-django-queries/">Understanding Django Queries</a></li>
+				
+				<li><a href="/posts/2025-06-01-hosting-a-blog-on-an-old-laptop/">Hosting a Blog on an Old Laptop</a></li>
+				
+				<li><a href="/posts/2025-05-29-mock-the-failure/">Mock the Failure</a></li>
+				
+				<li><a href="/posts/2025-04-21-making-raw-sql-easier-to-read/">Making Raw SQL Easier to Read with Row Factory</a></li>
+				
+				<li><a href="/posts/2025-04-18-til-postgre-json-jsonb/">Til Postgre Json Jsonb</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2025 <a href="//localhost:1313/"><b></b></a>.
+	<a href="https://github.com/example"><b>Github</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

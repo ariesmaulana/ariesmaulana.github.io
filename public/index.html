@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta name="generator" content="Hugo 0.146.2"><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title></title>
+	
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+	<link rel="alternate" type="application/rss+xml" href="/index.xml" title="">
+</head>
+<body>
+	<header>
+	======<br>
+	== <a href="//localhost:1313/"></a> ==<br>
+	======
+	<div style="float: right;">Note Arsmp!</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>Start</b></a>.
+			
+			
+			<a href="/posts/"><b>Posts</b></a>.
+			
+			<a href="/categories/"><b>Categories</b></a>.
+			
+			<a href="/tags/"><b>Tags</b></a>.
+			
+	</nav>
+	</p>
+	
+</header>
+
+	
+	<main>
+		
+		
+			<article>
+	<h1><a href="//localhost:1313/posts/2025-06-24-understanding-django-queries/">Understanding Django Queries</a></h1>
+	<b><time>24.06.2025 23:13</time></b>
+	
+	<a href="/tags/sql">sql</a>
+	
+	<a href="/tags/postgre">postgre</a>
+	
+	<a href="/tags/json">json</a>
+	
+	<div>
+		<p>Django ORM is great, but remember, every Django query we write gets translated into raw SQL.</p>
+<p>In this post, I’ll show how Django generates those queries, the cost behind them, and how different ORM methods affect performance, in terms of memory, execution time, and how the query is generated.</p>
+<p>This post won&rsquo;t cover indexing or general SQL optimization techniques, it focuses purely on how Django ORM translates queries into raw SQL.</p>
+		
+			<a href="//localhost:1313/posts/2025-06-24-understanding-django-queries/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="//localhost:1313/posts/2025-06-01-hosting-a-blog-on-an-old-laptop/">Hosting a Blog on an Old Laptop</a></h1>
+	<b><time>01.06.2025 10:46</time></b>
+	
+	<a href="/tags/blog">blog</a>
+	
+	<div>
+		<p>Living in a third-world country with a weak currency compared to the US dollar makes hobby projects difficult sometimes. I host several of my applications on AWS Lightsail for 7 dollars, it’s cheap, right? But again, in a third-world country, 7 dollars is kinda &ldquo;big.&rdquo; So how do we reduce costs? I was inspired by several friends who self-host their own blogs on a homelab server, so why not try it myself?</p>
+		
+			<a href="//localhost:1313/posts/2025-06-01-hosting-a-blog-on-an-old-laptop/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="//localhost:1313/posts/2025-05-29-mock-the-failure/">Mock the Failure</a></h1>
+	<b><time>29.05.2025 22:13</time></b>
+	
+	<a href="/tags/python">python</a>
+	
+	<a href="/tags/django">django</a>
+	
+	<a href="/tags/test">test</a>
+	
+	<a href="/tags/pytest">pytest</a>
+	
+	<div>
+		<p>I&rsquo;m not a big fan of mocking, especially when working with databases. For me, when we create tests involving a database, we can&rsquo;t just mock the result because I want to make sure my code actually stores the correct data. I think it is important to verify that the data is stored correctly during testing. Even if we have a nice algorithm in our code, if the stored data is incorrect, it becomes useless.</p>
+		
+			<a href="//localhost:1313/posts/2025-05-29-mock-the-failure/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="//localhost:1313/posts/2025-04-21-making-raw-sql-easier-to-read/">Making Raw SQL Easier to Read with Row Factory</a></h1>
+	<b><time>21.04.2025 20:51</time></b>
+	
+	<a href="/tags/python">python</a>
+	
+	<a href="/tags/sqlite">sqlite</a>
+	
+	<a href="/tags/postgre">postgre</a>
+	
+	<div>
+		<p>One thing that annoy me when using raw query in Python is how the returned value is not &ldquo;easy to remember&rdquo;. Look at this query:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> sqlite3
+</span></span><span style="display:flex;"><span>con <span style="color:#f92672">=</span> sqlite3<span style="color:#f92672">.</span>connect(<span style="color:#e6db74">&#34;library.sqlite3&#34;</span>)
+</span></span><span style="display:flex;"><span>query <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;SELECT id, isbn, title FROM books&#34;</span>
+</span></span><span style="display:flex;"><span>con <span style="color:#f92672">=</span> con<span style="color:#f92672">.</span>execute(query)
+</span></span><span style="display:flex;"><span>rows <span style="color:#f92672">=</span> con<span style="color:#f92672">.</span>fetchall()
+</span></span></code></pre></div><p>To print the returned value I must remember the index of each field:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> rows:
+</span></span><span style="display:flex;"><span>	print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>r[<span style="color:#ae81ff">0</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r[<span style="color:#ae81ff">1</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r[<span style="color:#ae81ff">2</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># index 0 = id</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># index 1 = isbn</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># index 2 = title</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">1234567890</span> <span style="color:#f92672">-</span> Book <span style="color:#ae81ff">1</span> by Author <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">2</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">2345678901</span> <span style="color:#f92672">-</span> Book <span style="color:#ae81ff">1</span> by Author <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">3</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">3456789012</span> <span style="color:#f92672">-</span> Book <span style="color:#ae81ff">1</span> by Author <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">4</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">4567890123</span> <span style="color:#f92672">-</span> Book <span style="color:#ae81ff">1</span> by Author <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">5</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">5678901234</span> <span style="color:#f92672">-</span> Book <span style="color:#ae81ff">1</span> by Author <span style="color:#ae81ff">2</span>
+</span></span></code></pre></div><p>And if you think it&rsquo;s only coming from sqlite, you&rsquo;re wrong. I tried PostgreSQL with psycopg and it has same behavior:</p>
+		
+			<a href="//localhost:1313/posts/2025-04-21-making-raw-sql-easier-to-read/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="//localhost:1313/posts/2025-04-18-til-postgre-json-jsonb/">Til Postgre Json Jsonb</a></h1>
+	<b><time>18.04.2025 14:45</time></b>
+	
+	<a href="/tags/sql">sql</a>
+	
+	<a href="/tags/postgre">postgre</a>
+	
+	<a href="/tags/json">json</a>
+	
+	<div>
+		<p>Several days ago, I heard a joke:</p>
+<blockquote>
+<p>You don&rsquo;t need Mongo, PostgreSQL is enough.</p></blockquote>
+<p>So&hellip; let&rsquo;s try it!</p>
+<h2 id="scopes">Scopes</h2>
+<p>Before we move forward, let’s set the scope of this test.
+In my experience, the use cases where I used Mongo are:</p>
+<ul>
+<li>
+<p>Store raw information coming from request/response, e.g. webhook, API call, etc.</p>
+</li>
+<li>
+<p>Store personalized config with JSON structure.</p>
+</li>
+</ul>
+<p>So we will try to use these cases using json and jsonb column in PostgreSQL.</p>
+		
+			<a href="//localhost:1313/posts/2025-04-18-til-postgre-json-jsonb/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="//localhost:1313/posts/2025-04-17-the-reason-i-stay-away-from-generic-cbv/">The Reason I Stay Away From Generic Cbv</a></h1>
+	<b><time>17.04.2025 22:23</time></b>
+	
+	<a href="/tags/python">python</a>
+	
+	<a href="/tags/django">django</a>
+	
+	<div>
+		<p>When I write code in Django for the first time, I feel mesmerized by class-based views (CBV), especially the generic views. Look at this CBV example using Django REST Framework:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># serializer.py</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PostSerializer</span>(serializers<span style="color:#f92672">.</span>ModelSerializer):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Meta</span>:
+</span></span><span style="display:flex;"><span>        model <span style="color:#f92672">=</span> Post
+</span></span><span style="display:flex;"><span>        fields <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;__all__&#39;</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># views</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PostListCreate</span>(ListCreateAPIView):
+</span></span><span style="display:flex;"><span>     serializer_class <span style="color:#f92672">=</span> PostSerializer
+</span></span><span style="display:flex;"><span>     queryset <span style="color:#f92672">=</span> Post<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>all()
+</span></span><span style="display:flex;"><span>     
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PostEdit</span>(RetrieveUpdateDestroyAPIView):
+</span></span><span style="display:flex;"><span>    serializer_class <span style="color:#f92672">=</span> PostSerializer
+</span></span><span style="display:flex;"><span>    queryset <span style="color:#f92672">=</span> Post<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>all()
+</span></span></code></pre></div><p>With this simple code, I already built full CRUD functionality. This code already supports:</p>
+		
+			<a href="//localhost:1313/posts/2025-04-17-the-reason-i-stay-away-from-generic-cbv/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="//localhost:1313/posts/2025-04-12-django-update-fields/">Django Update Fields</a></h1>
+	<b><time>12.04.2025 09:35</time></b>
+	
+	<a href="/tags/python">python</a>
+	
+	<a href="/tags/django">django</a>
+	
+	<div>
+		<p>Usually when working with Django ORM and want to update data, there are two patterns I always use: .save() and .update().</p>
+<p>When using .save(), the code becomes like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>model <span style="color:#f92672">=</span> Model<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>get(id<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>model<span style="color:#f92672">.</span>field <span style="color:#f92672">=</span> val
+</span></span><span style="display:flex;"><span>model<span style="color:#f92672">.</span>save()
+</span></span></code></pre></div><p>This code will act like this:</p>
+<ul>
+<li>Run clean() on Django model</li>
+<li>Run the actual query</li>
+<li>Run related signal(s)</li>
+</ul>
+<p>Using .update()</p>
+<p>When using .update(), usually it&rsquo;s to change multiple data. So instead of model instance, we use queryset instance.</p>
+		
+			<a href="//localhost:1313/posts/2025-04-12-django-update-fields/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
+	<h1><a href="//localhost:1313/posts/2025-04-12-embrace-typehint-in-python/">Embrace Typehint In Python</a></h1>
+	<b><time>12.04.2025 09:06</time></b>
+	
+	<a href="/tags/python">python</a>
+	
+	<a href="/tags/django">django</a>
+	
+	<div>
+		<p>I tried typehint in python and i didn’t like it, especially when working in legacy code, and then i move to other project, wrote golang code, feels good with the type, want to imitate the type in python and yes i visited again the typehint.</p>
+<p><strong>Expectation</strong></p>
+<p>Before we move forward, I must set expectation to myself. The default Python is dynamic typing, so it will not smooth like Go. Why? Let&rsquo;s take a look in this code:</p>
+		
+			<a href="//localhost:1313/posts/2025-04-12-embrace-typehint-in-python/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+		<div>
+
+1 of 1
+
+</div>
+
+	</main>
+
+	<footer>
+	<p>&copy; 2025 <a href="//localhost:1313/"><b></b></a>.
+	<a href="https://github.com/example"><b>Github</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

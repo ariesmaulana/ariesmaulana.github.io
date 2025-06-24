@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Embrace Typehint In Python</title>
+	
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+	
+</head>
+<body>
+	<header>
+	======<br>
+	== <a href="//localhost:1313/"></a> ==<br>
+	======
+	<div style="float: right;">Note Arsmp!</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>Start</b></a>.
+			
+			
+			<a href="/posts/"><b>Posts</b></a>.
+			
+			<a href="/categories/"><b>Categories</b></a>.
+			
+			<a href="/tags/"><b>Tags</b></a>.
+			
+	</nav>
+	</p>
+	
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Embrace Typehint In Python</h1>
+			<b><time>12.04.2025 09:06</time></b>
+		       
+		           <a href="/tags/python">python</a>
+        	       
+		           <a href="/tags/django">django</a>
+        	       
+
+			<div>
+				<p>I tried typehint in python and i didn’t like it, especially when working in legacy code, and then i move to other project, wrote golang code, feels good with the type, want to imitate the type in python and yes i visited again the typehint.</p>
+<p><strong>Expectation</strong></p>
+<p>Before we move forward, I must set expectation to myself. The default Python is dynamic typing, so it will not smooth like Go. Why? Let&rsquo;s take a look in this code:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>python
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">must_int</span>(param: int) <span style="color:#f92672">-&gt;</span> int:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> param
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>param <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;this is string&#34;</span>
+</span></span><span style="display:flex;"><span>res <span style="color:#f92672">=</span> must_int(param)
+</span></span></code></pre></div><p>You will see is strange code. The function give a hint the parameter must be int, and return int. But we use string and no break. The code still working as usual. So why we bother with typehint?</p>
+<p><strong>TypeCheck and IDE</strong></p>
+<p>Yes, you can&rsquo;t enforce type on runtime, but it not mean you can&rsquo;t check at all. You can use third party like mypy, pyright, or basedpyright.</p>
+<p>With typecheck library, you can audit your code to found possible issue like code above. I use basedpyright, and when I run it to audit my code, I got information like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Users/ariesm/code/python/wip/playg/views.py
+</span></span><span style="display:flex;"><span>  /Users/ariesm/code/python/wip/playg/views.py:12:22 - error: Argument of type <span style="color:#e6db74">&#34;Literal[&#39;string&#39;]&#34;</span> cannot be assigned to parameter <span style="color:#e6db74">&#34;param&#34;</span> of type <span style="color:#e6db74">&#34;int&#34;</span> in <span style="color:#66d9ef">function</span> <span style="color:#e6db74">&#34;must_int&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;Literal[&#39;string&#39;]&#34;</span> is not assignable to <span style="color:#e6db74">&#34;int&#34;</span> <span style="color:#f92672">(</span>reportArgumentType<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">1</span> error, <span style="color:#ae81ff">0</span> warnings, <span style="color:#ae81ff">0</span> notes
+</span></span></code></pre></div><p>And because we use typehint in the code, with proper IDE we can generate autocomplete easily like this.</p>
+<p>
+<figure>
+  <img src="/posts/images/typehint.png" alt="image: Show auto complete django orm on vscode" />
+</figure>
+
+
+</p>
+<blockquote>
+<p>In PyCharm, somehow even if you don&rsquo;t use typehint, you still can get autocompletion. But in VSCode, variable with typehint generate autocomplete, and variable without typehint doesn&rsquo;t have autocomple.</p></blockquote>
+<p>BasedPyRight</p>
+<p>There are a lot typecheck library right, but I choose the basedpyright with django-types because it can add rules gradually. It works for me that working with legacy code.</p>
+<p>Using django-types to generate types/stub for Django is game changer. Before, when I only use mypy, it driving me crazy how to setup proper type for Django project. With django-types, it become more easy. And with configuration in basedpyright, I can gradually put type on each Django app so it not add too much burden.</p>
+<p>This is my config on my legacy Django project.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-toml" data-lang="toml"><span style="display:flex;"><span>[<span style="color:#a6e22e">tool</span>.<span style="color:#a6e22e">basedpyright</span>]
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># gradual, only add app &#34;playg&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">include</span> = [<span style="color:#e6db74">&#34;playg&#34;</span>]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">exclude</span> = [<span style="color:#e6db74">&#34;**/migrations&#34;</span>, <span style="color:#e6db74">&#34;**/__pycache__&#34;</span>, <span style="color:#e6db74">&#34;**/settings.py&#34;</span>]
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># stub coming from django stub/types</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">extraPaths</span> = [<span style="color:#e6db74">&#34;typings&#34;</span>] <span style="color:#75715e"># prepare for stub</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">pythonVersion</span> = <span style="color:#e6db74">&#34;3.13&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">pythonPlatform</span> = <span style="color:#e6db74">&#34;Linux&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">typeCheckingMode</span> = <span style="color:#e6db74">&#34;basic&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">venvPath</span> = <span style="color:#e6db74">&#34;.&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Enable missing imports detection for better error tracking</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">reportMissingImports</span> = <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">reportMissingTypeStubs</span> = <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Reduce noise from dynamically typed Django parts</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">reportUnknownMemberType</span> = <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">reportUnknownVariableType</span> = <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">reportUnknownArgumentType</span> = <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">reportUntypedClassDecorator</span> = <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">reportUntypedFunctionDecorator</span> = <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">reportUntypedBaseClass</span> = <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">reportIncompatibleVariableOverride</span> = <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">reportAttributeAccessIssue</span> = <span style="color:#66d9ef">false</span>  <span style="color:#75715e"># Only if the stub doesn&#39;t fully fix it</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>[<span style="color:#a6e22e">tool</span>.<span style="color:#a6e22e">django-types</span>]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">django_settings_module</span> = <span style="color:#e6db74">&#34;core.settings&#34;</span>
+</span></span></code></pre></div>
+			</div>
+		</article>
+        <section id="comments">
+    <script src="https://utteranc.es/client.js"
+            repo="ariesmaulana/note"
+            issue-term="pathname"
+            theme="preferred-color-scheme"
+            crossorigin="anonymous"
+            async>
+    </script>
+  </section>
+  
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/posts/2025-06-24-understanding-django-queries/">Understanding Django Queries</a></li>
+				
+				<li><a href="/posts/2025-06-01-hosting-a-blog-on-an-old-laptop/">Hosting a Blog on an Old Laptop</a></li>
+				
+				<li><a href="/posts/2025-05-29-mock-the-failure/">Mock the Failure</a></li>
+				
+				<li><a href="/posts/2025-04-21-making-raw-sql-easier-to-read/">Making Raw SQL Easier to Read with Row Factory</a></li>
+				
+				<li><a href="/posts/2025-04-18-til-postgre-json-jsonb/">Til Postgre Json Jsonb</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2025 <a href="//localhost:1313/"><b></b></a>.
+	<a href="https://github.com/example"><b>Github</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

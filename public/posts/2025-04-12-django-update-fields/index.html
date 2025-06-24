@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Django Update Fields</title>
+	
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+	
+</head>
+<body>
+	<header>
+	======<br>
+	== <a href="//localhost:1313/"></a> ==<br>
+	======
+	<div style="float: right;">Note Arsmp!</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>Start</b></a>.
+			
+			
+			<a href="/posts/"><b>Posts</b></a>.
+			
+			<a href="/categories/"><b>Categories</b></a>.
+			
+			<a href="/tags/"><b>Tags</b></a>.
+			
+	</nav>
+	</p>
+	
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Django Update Fields</h1>
+			<b><time>12.04.2025 09:35</time></b>
+		       
+		           <a href="/tags/python">python</a>
+        	       
+		           <a href="/tags/django">django</a>
+        	       
+
+			<div>
+				<p>Usually when working with Django ORM and want to update data, there are two patterns I always use: .save() and .update().</p>
+<p>When using .save(), the code becomes like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>model <span style="color:#f92672">=</span> Model<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>get(id<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>model<span style="color:#f92672">.</span>field <span style="color:#f92672">=</span> val
+</span></span><span style="display:flex;"><span>model<span style="color:#f92672">.</span>save()
+</span></span></code></pre></div><p>This code will act like this:</p>
+<ul>
+<li>Run clean() on Django model</li>
+<li>Run the actual query</li>
+<li>Run related signal(s)</li>
+</ul>
+<p>Using .update()</p>
+<p>When using .update(), usually it&rsquo;s to change multiple data. So instead of model instance, we use queryset instance.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>Model<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>filter(param<span style="color:#f92672">=</span>param)<span style="color:#f92672">.</span>update(field<span style="color:#f92672">=</span>value)
+</span></span></code></pre></div><p>This code only runs the generated query. No signal or clean method affected.</p>
+<p><strong>Generated Query</strong></p>
+<p>Based on information above, the difference between .save() and .update() is how the code runs in the system. One calls internal functions like clean() and signals, and the other only runs the query. But it&rsquo;s not only that, the generated query is also different.</p>
+<p>Let&rsquo;s take a look at both snippets. In the snippet I only change 1 value for 1 field, right? But if we look at the generated query&hellip;</p>
+<p>With .save()</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">update</span> model_table <span style="color:#66d9ef">set</span> field<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;xxx&#39;</span>, other<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;xxx&#39;</span> ... <span style="color:#66d9ef">where</span> id<span style="color:#f92672">=</span>pk
+</span></span></code></pre></div><p>With .update()</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">update</span> model_tabel <span style="color:#66d9ef">set</span> field<span style="color:#f92672">=</span>value <span style="color:#66d9ef">where</span> param<span style="color:#f92672">=</span>param
+</span></span></code></pre></div><p>It bugs me how the .save() generated query works. I just want to change 1 field, but other fields suddenly appear. The proper query is from .update(), but .update() doesn&rsquo;t call clean() and signal (which is fine, I’m not big fan of signal).</p>
+<p>But what if I need the signal, and still want the query to only update the correct fields? update_fields is the answer. You just change the code like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>model <span style="color:#f92672">=</span> Model<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>get(id<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>model<span style="color:#f92672">.</span>field <span style="color:#f92672">=</span> val
+</span></span><span style="display:flex;"><span>model<span style="color:#f92672">.</span>save(update_fields<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;field&#34;</span>])
+</span></span></code></pre></div><p>It will generate the query:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">update</span> model_tabel <span style="color:#66d9ef">set</span> field<span style="color:#f92672">=</span>value <span style="color:#66d9ef">where</span> id<span style="color:#f92672">=</span>pk
+</span></span></code></pre></div>
+			</div>
+		</article>
+        <section id="comments">
+    <script src="https://utteranc.es/client.js"
+            repo="ariesmaulana/note"
+            issue-term="pathname"
+            theme="preferred-color-scheme"
+            crossorigin="anonymous"
+            async>
+    </script>
+  </section>
+  
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/posts/2025-06-24-understanding-django-queries/">Understanding Django Queries</a></li>
+				
+				<li><a href="/posts/2025-06-01-hosting-a-blog-on-an-old-laptop/">Hosting a Blog on an Old Laptop</a></li>
+				
+				<li><a href="/posts/2025-05-29-mock-the-failure/">Mock the Failure</a></li>
+				
+				<li><a href="/posts/2025-04-21-making-raw-sql-easier-to-read/">Making Raw SQL Easier to Read with Row Factory</a></li>
+				
+				<li><a href="/posts/2025-04-18-til-postgre-json-jsonb/">Til Postgre Json Jsonb</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2025 <a href="//localhost:1313/"><b></b></a>.
+	<a href="https://github.com/example"><b>Github</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

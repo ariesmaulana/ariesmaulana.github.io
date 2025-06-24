@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Pytest on </title>
+    <link>//localhost:1313/tags/pytest/</link>
+    <description>Recent content in Pytest on </description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 29 May 2025 22:13:02 +0700</lastBuildDate>
+    <atom:link href="//localhost:1313/tags/pytest/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Mock the Failure</title>
+      <link>//localhost:1313/posts/2025-05-29-mock-the-failure/</link>
+      <pubDate>Thu, 29 May 2025 22:13:02 +0700</pubDate>
+      <guid>//localhost:1313/posts/2025-05-29-mock-the-failure/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;m not a big fan of mocking, especially when working with databases. For me, when we create tests involving a database, we can&amp;rsquo;t just mock the result because I want to make sure my code actually stores the correct data. I think it is important to verify that the data is stored correctly during testing. Even if we have a nice algorithm in our code, if the stored data is incorrect, it becomes useless.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

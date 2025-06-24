@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Hosting a Blog on an Old Laptop</title>
+	
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+	
+</head>
+<body>
+	<header>
+	======<br>
+	== <a href="//localhost:1313/"></a> ==<br>
+	======
+	<div style="float: right;">Note Arsmp!</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>Start</b></a>.
+			
+			
+			<a href="/posts/"><b>Posts</b></a>.
+			
+			<a href="/categories/"><b>Categories</b></a>.
+			
+			<a href="/tags/"><b>Tags</b></a>.
+			
+	</nav>
+	</p>
+	
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Hosting a Blog on an Old Laptop</h1>
+			<b><time>01.06.2025 10:46</time></b>
+		       
+		           <a href="/tags/blog">blog</a>
+        	       
+
+			<div>
+				<p>Living in a third-world country with a weak currency compared to the US dollar makes hobby projects difficult sometimes. I host several of my applications on AWS Lightsail for 7 dollars, it’s cheap, right? But again, in a third-world country, 7 dollars is kinda &ldquo;big.&rdquo; So how do we reduce costs? I was inspired by several friends who self-host their own blogs on a homelab server, so why not try it myself?</p>
+<h2 id="tools">Tools</h2>
+<p>I bought a used ThinkPad about 5 years ago. For almost a year, I haven’t used it because I already have another laptop. So I decided to use the ThinkPad again as a server.</p>
+<h2 id="software">Software</h2>
+<p>For the OS, I chose Ubuntu 22.04 because I’m more familiar with this distro.</p>
+<p>I’m using Coolify as a platform manager. Yes, I could have used a simple web server like Caddy or something similar, but hey, why not try a bit of over-engineering for a fun project, right?</p>
+<p>To make my app publicly accessible, I used Cloudflare Tunnel.</p>
+<p>I prefer not to expose my Coolify dashboard, but I still need to access it when I’m out, so I chose Tailscale.</p>
+<p>And yes, for now, this blog, notes.arsmp.com is hosted in my own home, on my own laptop. It’s zero dollars, at least for now, and I hope it stays that way in the future haha. I just pay yearly for the domain, and for electricity, I think there’s not much difference in cost, since whether I use the laptop as a server or not, it&rsquo;s common in my home to put laptops and computers in sleep mode rather than shutting them down.</p>
+
+			</div>
+		</article>
+        <section id="comments">
+    <script src="https://utteranc.es/client.js"
+            repo="ariesmaulana/note"
+            issue-term="pathname"
+            theme="preferred-color-scheme"
+            crossorigin="anonymous"
+            async>
+    </script>
+  </section>
+  
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/posts/2025-06-24-understanding-django-queries/">Understanding Django Queries</a></li>
+				
+				<li><a href="/posts/2025-06-01-hosting-a-blog-on-an-old-laptop/">Hosting a Blog on an Old Laptop</a></li>
+				
+				<li><a href="/posts/2025-05-29-mock-the-failure/">Mock the Failure</a></li>
+				
+				<li><a href="/posts/2025-04-21-making-raw-sql-easier-to-read/">Making Raw SQL Easier to Read with Row Factory</a></li>
+				
+				<li><a href="/posts/2025-04-18-til-postgre-json-jsonb/">Til Postgre Json Jsonb</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2025 <a href="//localhost:1313/"><b></b></a>.
+	<a href="https://github.com/example"><b>Github</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Making Raw SQL Easier to Read with Row Factory</title>
+	
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+	
+</head>
+<body>
+	<header>
+	======<br>
+	== <a href="//localhost:1313/"></a> ==<br>
+	======
+	<div style="float: right;">Note Arsmp!</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>Start</b></a>.
+			
+			
+			<a href="/posts/"><b>Posts</b></a>.
+			
+			<a href="/categories/"><b>Categories</b></a>.
+			
+			<a href="/tags/"><b>Tags</b></a>.
+			
+	</nav>
+	</p>
+	
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Making Raw SQL Easier to Read with Row Factory</h1>
+			<b><time>21.04.2025 20:51</time></b>
+		       
+		           <a href="/tags/python">python</a>
+        	       
+		           <a href="/tags/sqlite">sqlite</a>
+        	       
+		           <a href="/tags/postgre">postgre</a>
+        	       
+
+			<div>
+				<p>One thing that annoy me when using raw query in Python is how the returned value is not &ldquo;easy to remember&rdquo;. Look at this query:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> sqlite3
+</span></span><span style="display:flex;"><span>con <span style="color:#f92672">=</span> sqlite3<span style="color:#f92672">.</span>connect(<span style="color:#e6db74">&#34;library.sqlite3&#34;</span>)
+</span></span><span style="display:flex;"><span>query <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;SELECT id, isbn, title FROM books&#34;</span>
+</span></span><span style="display:flex;"><span>con <span style="color:#f92672">=</span> con<span style="color:#f92672">.</span>execute(query)
+</span></span><span style="display:flex;"><span>rows <span style="color:#f92672">=</span> con<span style="color:#f92672">.</span>fetchall()
+</span></span></code></pre></div><p>To print the returned value I must remember the index of each field:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> rows:
+</span></span><span style="display:flex;"><span>	print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>r[<span style="color:#ae81ff">0</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r[<span style="color:#ae81ff">1</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r[<span style="color:#ae81ff">2</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># index 0 = id</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># index 1 = isbn</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># index 2 = title</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">1234567890</span> <span style="color:#f92672">-</span> Book <span style="color:#ae81ff">1</span> by Author <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">2</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">2345678901</span> <span style="color:#f92672">-</span> Book <span style="color:#ae81ff">1</span> by Author <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">3</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">3456789012</span> <span style="color:#f92672">-</span> Book <span style="color:#ae81ff">1</span> by Author <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">4</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">4567890123</span> <span style="color:#f92672">-</span> Book <span style="color:#ae81ff">1</span> by Author <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">5</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">5678901234</span> <span style="color:#f92672">-</span> Book <span style="color:#ae81ff">1</span> by Author <span style="color:#ae81ff">2</span>
+</span></span></code></pre></div><p>And if you think it&rsquo;s only coming from sqlite, you&rsquo;re wrong. I tried PostgreSQL with psycopg and it has same behavior:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> psycopg2
+</span></span><span style="display:flex;"><span>conn <span style="color:#f92672">=</span> psycopg2<span style="color:#f92672">.</span>connect()
+</span></span><span style="display:flex;"><span>cursor <span style="color:#f92672">=</span> conn<span style="color:#f92672">.</span>cursor()
+</span></span><span style="display:flex;"><span>query <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;SELECT id, isbn, title FROM books&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cursor<span style="color:#f92672">.</span>execute(query)
+</span></span><span style="display:flex;"><span>rows <span style="color:#f92672">=</span> cursor<span style="color:#f92672">.</span>fetchall()
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> rows:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>r[<span style="color:#ae81ff">0</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r[<span style="color:#ae81ff">1</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r[<span style="color:#ae81ff">2</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><p>So is using ORM the answer? Luckily, it&rsquo;s not the only answer. After reading the docs, I found sqlite and postgre lib have something called row factory.</p>
+<h3 id="sqlite3row">Sqlite3.Row</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> sqlite3
+</span></span><span style="display:flex;"><span>con <span style="color:#f92672">=</span> sqlite3<span style="color:#f92672">.</span>connect(<span style="color:#e6db74">&#34;library.sqlite3&#34;</span>)
+</span></span><span style="display:flex;"><span>con<span style="color:#f92672">.</span>row_factory <span style="color:#f92672">=</span> sqlite3<span style="color:#f92672">.</span>Row  <span style="color:#75715e"># add this</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>query <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;SELECT id, isbn, title FROM books&#34;</span>
+</span></span><span style="display:flex;"><span>con <span style="color:#f92672">=</span> con<span style="color:#f92672">.</span>execute(query)
+</span></span><span style="display:flex;"><span>rows <span style="color:#f92672">=</span> con<span style="color:#f92672">.</span>fetchall()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> rows:
+</span></span><span style="display:flex;"><span>	print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>r[<span style="color:#e6db74">&#39;id&#39;</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r[<span style="color:#e6db74">&#39;isbn&#39;</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r[<span style="color:#e6db74">&#39;title&#39;</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><h3 id="psycopg2dictcursor">Psycopg2.DictCursor</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> psycopg2
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> psycopg2 <span style="color:#f92672">import</span> extras
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>conn <span style="color:#f92672">=</span> psycopg2<span style="color:#f92672">.</span>connect()
+</span></span><span style="display:flex;"><span>cursor <span style="color:#f92672">=</span> conn<span style="color:#f92672">.</span>cursor(cursor_factory<span style="color:#f92672">=</span>extras<span style="color:#f92672">.</span>DictCursor)
+</span></span><span style="display:flex;"><span>query <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;SELECT id, isbn, title FROM books&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cursor<span style="color:#f92672">.</span>execute(query)
+</span></span><span style="display:flex;"><span>rows <span style="color:#f92672">=</span> cursor<span style="color:#f92672">.</span>fetchall()
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> rows:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>r[<span style="color:#e6db74">&#39;id&#39;</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r[<span style="color:#e6db74">&#39;isbn&#39;</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r[<span style="color:#e6db74">&#39;title&#39;</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><p>Or you can return result like ORM using dataclass (for sqlite or psycopg3) or NamedTuple (for psycopg2):</p>
+<h3 id="sqlite-with-dataclass">sqlite with Dataclass</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> sqlite3
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> dataclasses <span style="color:#f92672">import</span> dataclass
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Books</span>:
+</span></span><span style="display:flex;"><span>	id: int
+</span></span><span style="display:flex;"><span>	isbn: str
+</span></span><span style="display:flex;"><span>	title: str
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">converter_books</span>(cursor, row):
+</span></span><span style="display:flex;"><span>	fields <span style="color:#f92672">=</span> [column[<span style="color:#ae81ff">0</span>] <span style="color:#66d9ef">for</span> column <span style="color:#f92672">in</span> cursor<span style="color:#f92672">.</span>description]
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> Books(<span style="color:#f92672">**</span>{k: v <span style="color:#66d9ef">for</span> k, v <span style="color:#f92672">in</span> zip(fields, row)})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>con <span style="color:#f92672">=</span> sqlite3<span style="color:#f92672">.</span>connect(<span style="color:#e6db74">&#34;library.sqlite3&#34;</span>)
+</span></span><span style="display:flex;"><span>con<span style="color:#f92672">.</span>row_factory <span style="color:#f92672">=</span> converter_books
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>query <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;SELECT id, isbn, title FROM books&#34;</span>
+</span></span><span style="display:flex;"><span>con <span style="color:#f92672">=</span> con<span style="color:#f92672">.</span>execute(query)
+</span></span><span style="display:flex;"><span>rows <span style="color:#f92672">=</span> con<span style="color:#f92672">.</span>fetchall()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> rows:
+</span></span><span style="display:flex;"><span>	print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>r<span style="color:#f92672">.</span>id<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r<span style="color:#f92672">.</span>isbn<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r<span style="color:#f92672">.</span>title<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><h3 id="psycopg2-with-namedtuple">Psycopg2 With NamedTuple</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> psycopg2
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> psycopg2 <span style="color:#f92672">import</span> extras
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>conn <span style="color:#f92672">=</span> psycopg2<span style="color:#f92672">.</span>connect()
+</span></span><span style="display:flex;"><span>cursor <span style="color:#f92672">=</span> conn<span style="color:#f92672">.</span>cursor(cursor_factory<span style="color:#f92672">=</span>extras<span style="color:#f92672">.</span>NamedTupleCursor)
+</span></span><span style="display:flex;"><span>query <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;SELECT id, isbn, title FROM books&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cursor<span style="color:#f92672">.</span>execute(query)
+</span></span><span style="display:flex;"><span>rows <span style="color:#f92672">=</span> cursor<span style="color:#f92672">.</span>fetchall()
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> rows:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>r<span style="color:#f92672">.</span>id<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r<span style="color:#f92672">.</span>isbn<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r<span style="color:#f92672">.</span>title<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><p>Or another version of psycopg</p>
+<h3 id="psycopg3-with-dataclass">Psycopg3 With Dataclass</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> psycopg
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> dataclasses <span style="color:#f92672">import</span> dataclass
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> psycopg.rows <span style="color:#f92672">import</span> class_row
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@dataclass</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Books</span>:
+</span></span><span style="display:flex;"><span>    id: int
+</span></span><span style="display:flex;"><span>    isbn: str
+</span></span><span style="display:flex;"><span>    title: str
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>conn <span style="color:#f92672">=</span> psycopg<span style="color:#f92672">.</span>connect()
+</span></span><span style="display:flex;"><span>cursor <span style="color:#f92672">=</span> conn<span style="color:#f92672">.</span>cursor(row_factory<span style="color:#f92672">=</span>class_row(Books))
+</span></span><span style="display:flex;"><span>query <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;SELECT id, isbn, title FROM books&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cursor<span style="color:#f92672">.</span>execute(query)
+</span></span><span style="display:flex;"><span>rows <span style="color:#f92672">=</span> cursor<span style="color:#f92672">.</span>fetchall()
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> r <span style="color:#f92672">in</span> rows:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>r<span style="color:#f92672">.</span>id<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r<span style="color:#f92672">.</span>isbn<span style="color:#e6db74">}</span><span style="color:#e6db74"> - </span><span style="color:#e6db74">{</span>r<span style="color:#f92672">.</span>title<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><p>So which one is better?</p>
+<p>I tried small benchmark and found out:</p>
+<h3 id="sqlite">sqlite</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Default:
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">11946</span> <span style="color:#66d9ef">function</span> calls in 0.157 seconds
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sqlite3.Row:
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">11946</span> <span style="color:#66d9ef">function</span> calls in 0.165 seconds
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Dataclass:
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">52279</span> <span style="color:#66d9ef">function</span> calls in 0.231 seconds
+</span></span></code></pre></div><h3 id="psycopg">Psycopg</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Default:
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">78624</span> <span style="color:#66d9ef">function</span> calls in 0.521 seconds
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>DictRow:
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">288642</span> <span style="color:#66d9ef">function</span> calls in 0.578 seconds
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Dataclass/class_row:
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">288983</span> <span style="color:#66d9ef">function</span> calls in 0.569 seconds
+</span></span></code></pre></div><p>So for sqlite I prefer sqlite3.Row, and for postgre I think class_row/dataclass is good enough.</p>
+
+			</div>
+		</article>
+        <section id="comments">
+    <script src="https://utteranc.es/client.js"
+            repo="ariesmaulana/note"
+            issue-term="pathname"
+            theme="preferred-color-scheme"
+            crossorigin="anonymous"
+            async>
+    </script>
+  </section>
+  
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/posts/2025-06-24-understanding-django-queries/">Understanding Django Queries</a></li>
+				
+				<li><a href="/posts/2025-06-01-hosting-a-blog-on-an-old-laptop/">Hosting a Blog on an Old Laptop</a></li>
+				
+				<li><a href="/posts/2025-05-29-mock-the-failure/">Mock the Failure</a></li>
+				
+				<li><a href="/posts/2025-04-21-making-raw-sql-easier-to-read/">Making Raw SQL Easier to Read with Row Factory</a></li>
+				
+				<li><a href="/posts/2025-04-18-til-postgre-json-jsonb/">Til Postgre Json Jsonb</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2025 <a href="//localhost:1313/"><b></b></a>.
+	<a href="https://github.com/example"><b>Github</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

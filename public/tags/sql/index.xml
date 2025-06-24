@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Sql on </title>
+    <link>//localhost:1313/tags/sql/</link>
+    <description>Recent content in Sql on </description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 24 Jun 2025 23:13:18 +0700</lastBuildDate>
+    <atom:link href="//localhost:1313/tags/sql/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Understanding Django Queries</title>
+      <link>//localhost:1313/posts/2025-06-24-understanding-django-queries/</link>
+      <pubDate>Tue, 24 Jun 2025 23:13:18 +0700</pubDate>
+      <guid>//localhost:1313/posts/2025-06-24-understanding-django-queries/</guid>
+      <description>&lt;p&gt;Django ORM is great, but remember, every Django query we write gets translated into raw SQL.&lt;/p&gt;&#xA;&lt;p&gt;In this post, I’ll show how Django generates those queries, the cost behind them, and how different ORM methods affect performance, in terms of memory, execution time, and how the query is generated.&lt;/p&gt;&#xA;&lt;p&gt;This post will not talk about how to add indexes or SQL best practices. It only covers how Django ORM queries are translated to raw SQL.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Til Postgre Json Jsonb</title>
+      <link>//localhost:1313/posts/2025-04-18-til-postgre-json-jsonb/</link>
+      <pubDate>Fri, 18 Apr 2025 14:45:48 +0700</pubDate>
+      <guid>//localhost:1313/posts/2025-04-18-til-postgre-json-jsonb/</guid>
+      <description>&lt;p&gt;Several days ago, I heard a joke:&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;You don&amp;rsquo;t need Mongo, PostgreSQL is enough.&lt;/p&gt;&lt;/blockquote&gt;&#xA;&lt;p&gt;So&amp;hellip; let&amp;rsquo;s try it!&lt;/p&gt;&#xA;&lt;h2 id=&#34;scopes&#34;&gt;Scopes&lt;/h2&gt;&#xA;&lt;p&gt;Before we move forward, let’s set the scope of this test.&#xA;In my experience, the use cases where I used Mongo are:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;Store raw information coming from request/response, e.g. webhook, API call, etc.&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;Store personalized config with JSON structure.&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;So we will try to use these cases using json and jsonb column in PostgreSQL.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

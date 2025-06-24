@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<style type=text/css>body{font-family:monospace;}</style>
+	<title>Understanding Django Queries</title>
+	
+	
+	<link rel="stylesheet" href="/css/style.css">
+	
+	
+</head>
+<body>
+	<header>
+	======<br>
+	== <a href="//localhost:1313/"></a> ==<br>
+	======
+	<div style="float: right;">Note Arsmp!</div><br>
+	<p>
+	<nav>
+			<a href="/"><b>Start</b></a>.
+			
+			
+			<a href="/posts/"><b>Posts</b></a>.
+			
+			<a href="/categories/"><b>Categories</b></a>.
+			
+			<a href="/tags/"><b>Tags</b></a>.
+			
+	</nav>
+	</p>
+	
+</header>
+
+	
+	<main>
+		<article>
+			<h1>Understanding Django Queries</h1>
+			<b><time>24.06.2025 23:13</time></b>
+		       
+		           <a href="/tags/sql">sql</a>
+        	       
+		           <a href="/tags/postgre">postgre</a>
+        	       
+		           <a href="/tags/json">json</a>
+        	       
+
+			<div>
+				<p>Django ORM is great, but remember, every Django query we write gets translated into raw SQL.</p>
+<p>In this post, I’ll show how Django generates those queries, the cost behind them, and how different ORM methods affect performance, in terms of memory, execution time, and how the query is generated.</p>
+<p>This post won&rsquo;t cover indexing or general SQL optimization techniques, it focuses purely on how Django ORM translates queries into raw SQL.</p>
+<p>To get the information in this test, I was helped by Claude and GPT to create a simple profiler for this kind of task. You can access it here:</p>
+<blockquote>
+<p><a href="https://gist.github.com/ariesmaulana/654ec4a553ddc15189cc50f4ac85f25b">https://gist.github.com/ariesmaulana/654ec4a553ddc15189cc50f4ac85f25b</a></p></blockquote>
+<h2 id="data">Data</h2>
+<p>For this post, I created one big model in a single app. The model looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BenchDataPostgres</span>(models<span style="color:#f92672">.</span>Model):
+</span></span><span style="display:flex;"><span>    name <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>CharField(max_length<span style="color:#f92672">=</span><span style="color:#ae81ff">255</span>)
+</span></span><span style="display:flex;"><span>    email <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>EmailField()
+</span></span><span style="display:flex;"><span>    age <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>IntegerField()
+</span></span><span style="display:flex;"><span>    is_active <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>BooleanField(default<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    joined_date <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>DateTimeField()
+</span></span><span style="display:flex;"><span>    score <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>DecimalField(max_digits<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>, decimal_places<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>)
+</span></span><span style="display:flex;"><span>    description <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>TextField()
+</span></span><span style="display:flex;"><span>    created_at <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>DateTimeField(auto_now_add<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    updated_at <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>DateTimeField(auto_now<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    balance <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>FloatField()
+</span></span><span style="display:flex;"><span>    tags <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>JSONField(null<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>, blank<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    preferences <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>JSONField(null<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>, blank<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    history <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>JSONField(null<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>, blank<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    notes <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>TextField()
+</span></span><span style="display:flex;"><span>    status <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>CharField(max_length<span style="color:#f92672">=</span><span style="color:#ae81ff">50</span>)
+</span></span><span style="display:flex;"><span>    metadata <span style="color:#f92672">=</span> models<span style="color:#f92672">.</span>JSONField(null<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>, blank<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Meta</span>:
+</span></span><span style="display:flex;"><span>        verbose_name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Benchmark Data PostgreSQL&#34;</span>
+</span></span></code></pre></div><p>And i generated 1500 data to this model.</p>
+<p>Okay, let’s begin!</p>
+<p>The simplest Django query to get all data from that model is like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>BenchDataPostgres<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>all()
+</span></span></code></pre></div><p>So, what kind of raw SQL is generated from this? Django translates it into a full SELECT query with all fields listed.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Query Generated: SELECT <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;id&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;name&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;email&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;age&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;is_active&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;joined_date&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;score&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;description&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;created_at&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;updated_at&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;balance&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;tags&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;preferences&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;history&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;notes&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;status&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;metadata&#34;</span> FROM <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>
+</span></span><span style="display:flex;"><span>Mem Usage: 39.71 MB
+</span></span><span style="display:flex;"><span>Exec Time: 605.66 ms
+</span></span></code></pre></div><p>That’s pretty much the same as SELECT * FROM bench_benchdatapostgres, right?</p>
+<p>With this approach, we end up retrieving every field defined in the model, but sometimes, we don’t need all of them. For example, if you have two pages, one for a list and one for a detail view, the list view probably only needs a few fields. Django provides several ways to optimize for this.</p>
+<h3 id="only"><code>ONLY()</code></h3>
+<p>As the name suggests, it lets us select only the fields we want. For example, if we only want name, email, and age, we can use <code>.only()</code> to limit the data retrieved.</p>
+<p>The resulting query will only include those fields, and you’ll see a noticeable improvement in both memory usage and execution time.</p>
+<p>Give this example, we change the query above to become like this</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>BenchDataPostgres<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>all()<span style="color:#f92672">.</span>only(<span style="color:#e6db74">&#34;name&#34;</span>, <span style="color:#e6db74">&#34;age&#34;</span>, <span style="color:#e6db74">&#34;email&#34;</span>)
+</span></span></code></pre></div><p>This will translated to:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Query Generated: SELECT <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;id&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;name&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;email&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;age&#34;</span> FROM <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>
+</span></span><span style="display:flex;"><span>Mem Usage: 1.29 MB
+</span></span><span style="display:flex;"><span>Exec Time: 196.82 ms
+</span></span></code></pre></div><p>See the memory usages and execution times, is major improvement right?</p>
+<h3 id="defer"><code>DEFER()</code></h3>
+<p>Unlike <code>.only()</code>, which includes specific fields, <code>.defer()</code> lets us exclude certain fields.</p>
+<p>Let’s say we want to exclude metadata and history because they contain large JSON data. We can use <code>.defer()</code> to skip loading those fields initially.</p>
+<p>This also results in improved performance.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>BenchDataPostgres<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>all()<span style="color:#f92672">.</span>defer(<span style="color:#e6db74">&#34;metadata&#34;</span>,<span style="color:#e6db74">&#34;history&#34;</span>)
+</span></span></code></pre></div><p>And will translated to:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Query Generated: SELECT <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;id&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;name&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;email&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;age&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;is_active&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;joined_date&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;score&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;description&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;created_at&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;updated_at&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;balance&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;tags&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;preferences&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;notes&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;status&#34;</span> FROM <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>
+</span></span><span style="display:flex;"><span>Mem Usage: 8.66 MB
+</span></span><span style="display:flex;"><span>Exec Time: 431.63 ms
+</span></span></code></pre></div><p>However, there’s a hidden trap when using <code>.only()</code> and <code>.defer()</code>. Even though you’re selecting or excluding certain fields, Django won’t stop you from accessing any field later on.</p>
+<p>Lets take example in this code</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>data <span style="color:#f92672">=</span> BenchDataPostgres<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>all()<span style="color:#f92672">.</span>only(<span style="color:#e6db74">&#34;name&#34;</span>, <span style="color:#e6db74">&#34;age&#34;</span>, <span style="color:#e6db74">&#34;email&#34;</span>)
+</span></span><span style="display:flex;"><span>metadata <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> d <span style="color:#f92672">in</span> data:
+</span></span><span style="display:flex;"><span>    metadata<span style="color:#f92672">.</span>append(d<span style="color:#f92672">.</span>metadata)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">return</span> metadata
+</span></span></code></pre></div><p>The code will run perfectly, no error, no raise exception, but let see the generated query</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Queries Generated <span style="color:#f92672">(</span><span style="color:#ae81ff">1501</span> total<span style="color:#f92672">)</span>:
+</span></span><span style="display:flex;"><span>  1. SELECT <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;id&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;name&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;email&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;age&#34;</span> FROM <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>
+</span></span><span style="display:flex;"><span>  2. SELECT <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;id&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;metadata&#34;</span> FROM <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span> WHERE <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;id&#34;</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span> LIMIT <span style="color:#ae81ff">21</span>
+</span></span><span style="display:flex;"><span>  3. SELECT <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;id&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;metadata&#34;</span> FROM <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span> WHERE <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;id&#34;</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span> LIMIT <span style="color:#ae81ff">21</span>
+</span></span><span style="display:flex;"><span>  4. SELECT <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;id&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;metadata&#34;</span> FROM <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span> WHERE <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;id&#34;</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span> LIMIT <span style="color:#ae81ff">21</span>
+</span></span><span style="display:flex;"><span>  .
+</span></span><span style="display:flex;"><span>  .
+</span></span><span style="display:flex;"><span>  .
+</span></span><span style="display:flex;"><span>  1501. SELECT ....
+</span></span><span style="display:flex;"><span>Mem Usage: 18.23 MB
+</span></span><span style="display:flex;"><span>Exec Time: 1659.42 ms
+</span></span></code></pre></div><p>This leads to an N+1 query. look at the total: 1501 queries, and I only have 1500 rows. This happens not just with <code>.only()</code>, but with <code>.defer()</code> too.</p>
+<p>N+1 queries usually happen on parent–child tables. You can solve it using <code>select_related</code> or <code>prefetch_related</code> (I’ll post about that later). But how do we make sure we only select specific fields and prevent access to fields that weren’t returned?</p>
+<p>First, using values_list()</p>
+<p>We can change the django query become like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>lst <span style="color:#f92672">=</span> BenchDataPostgres<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>values_list(<span style="color:#e6db74">&#34;name&#34;</span>, <span style="color:#e6db74">&#34;age&#34;</span>, <span style="color:#e6db74">&#34;email&#34;</span>)
+</span></span><span style="display:flex;"><span>    collect <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> l <span style="color:#f92672">in</span> lst:
+</span></span><span style="display:flex;"><span>        collect<span style="color:#f92672">.</span>append( l[<span style="color:#ae81ff">0</span>])
+</span></span><span style="display:flex;"><span>        collect<span style="color:#f92672">.</span>append( l[<span style="color:#ae81ff">1</span>])
+</span></span><span style="display:flex;"><span>        collect<span style="color:#f92672">.</span>append( l[<span style="color:#ae81ff">2</span>])
+</span></span></code></pre></div><p>When using values_list(), it will return a list of tuples, not a queryset with model instances. That’s the downside, you can&rsquo;t use functions like <code>.update()</code> in this case. But the query itself still gets translated into this SQL:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Query Generated: SELECT <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;name&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;age&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;email&#34;</span> FROM <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>
+</span></span><span style="display:flex;"><span>Mem Usage: 973.77 KB
+</span></span><span style="display:flex;"><span>Exec Time: 158.80 ms
+</span></span></code></pre></div><p>So you need to remember how you order the fields, because you have to access the values by index. If you try to access outside the index, it will raise an error.</p>
+<p>The second way to restrict fields is by using <code>.values()</code>. It&rsquo;s similar to <code>.values_list()</code>, but instead of a list of tuples, it returns a list of dicts, more human-friendly, since you don’t need to remember the field order. Look at this example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>lst <span style="color:#f92672">=</span> BenchDataPostgres<span style="color:#f92672">.</span>objects<span style="color:#f92672">.</span>values(<span style="color:#e6db74">&#34;name&#34;</span>, <span style="color:#e6db74">&#34;age&#34;</span>, <span style="color:#e6db74">&#34;email&#34;</span>)
+</span></span><span style="display:flex;"><span>collect <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> l <span style="color:#f92672">in</span> lst:
+</span></span><span style="display:flex;"><span>    collect<span style="color:#f92672">.</span>append( l[<span style="color:#e6db74">&#34;name&#34;</span>])
+</span></span><span style="display:flex;"><span>    collect<span style="color:#f92672">.</span>append( l[<span style="color:#e6db74">&#34;age&#34;</span>])
+</span></span><span style="display:flex;"><span>    collect<span style="color:#f92672">.</span>append( l[<span style="color:#e6db74">&#34;email&#34;</span>])
+</span></span></code></pre></div><p>The generated query become like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Query Generated: SELECT <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;name&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;age&#34;</span>, <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>.<span style="color:#e6db74">&#34;email&#34;</span> FROM <span style="color:#e6db74">&#34;bench_benchdatapostgres&#34;</span>
+</span></span><span style="display:flex;"><span>Mem Usage: 1.20 MB
+</span></span><span style="display:flex;"><span>Exec Time: 159.93 ms
+</span></span></code></pre></div><p>And if you try to access outside returned fields, it will raise error like this</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>    KeyError                                  Traceback <span style="color:#f92672">(</span>most recent call last<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>Cell In<span style="color:#f92672">[</span>2<span style="color:#f92672">]</span>, line <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>----&gt; <span style="color:#ae81ff">1</span> test_values<span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>File ~/code/python/wip/bench/service.py:32, in test_values<span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#ae81ff">30</span> collect.append<span style="color:#f92672">(</span> l<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">])</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#ae81ff">31</span> collect.append<span style="color:#f92672">(</span> l<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;age&#34;</span><span style="color:#f92672">])</span>
+</span></span><span style="display:flex;"><span>---&gt; <span style="color:#ae81ff">32</span> collect.append<span style="color:#f92672">(</span> l<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;metadata&#34;</span><span style="color:#f92672">])</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#ae81ff">33</span> collect.append<span style="color:#f92672">(</span> l<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;email&#34;</span><span style="color:#f92672">])</span>
+</span></span></code></pre></div><p>Yes django orm is powerfull but remember, orm is always put some &ldquo;magic&rdquo; for the end user, understand the &ldquo;magic&rdquo; will help us to write more efficient query.</p>
+
+			</div>
+		</article>
+        <section id="comments">
+    <script src="https://utteranc.es/client.js"
+            repo="ariesmaulana/note"
+            issue-term="pathname"
+            theme="preferred-color-scheme"
+            crossorigin="anonymous"
+            async>
+    </script>
+  </section>
+  
+	</main>
+<aside>
+	<div>
+		<div>
+			<h3>LATEST POSTS</h3>
+		</div>
+		<div>
+			<ul>
+				
+				<li><a href="/posts/2025-06-24-understanding-django-queries/">Understanding Django Queries</a></li>
+				
+				<li><a href="/posts/2025-06-01-hosting-a-blog-on-an-old-laptop/">Hosting a Blog on an Old Laptop</a></li>
+				
+				<li><a href="/posts/2025-05-29-mock-the-failure/">Mock the Failure</a></li>
+				
+				<li><a href="/posts/2025-04-21-making-raw-sql-easier-to-read/">Making Raw SQL Easier to Read with Row Factory</a></li>
+				
+				<li><a href="/posts/2025-04-18-til-postgre-json-jsonb/">Til Postgre Json Jsonb</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</aside>
+
+
+	<footer>
+	<p>&copy; 2025 <a href="//localhost:1313/"><b></b></a>.
+	<a href="https://github.com/example"><b>Github</b></a>.
+	</p>
+</footer>
+
+</body>
+</html>

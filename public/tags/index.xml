@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on </title>
+    <link>//localhost:1313/tags/</link>
+    <description>Recent content in Tags on </description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 24 Jun 2025 23:13:18 +0700</lastBuildDate>
+    <atom:link href="//localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Json</title>
+      <link>//localhost:1313/tags/json/</link>
+      <pubDate>Tue, 24 Jun 2025 23:13:18 +0700</pubDate>
+      <guid>//localhost:1313/tags/json/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Postgre</title>
+      <link>//localhost:1313/tags/postgre/</link>
+      <pubDate>Tue, 24 Jun 2025 23:13:18 +0700</pubDate>
+      <guid>//localhost:1313/tags/postgre/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Sql</title>
+      <link>//localhost:1313/tags/sql/</link>
+      <pubDate>Tue, 24 Jun 2025 23:13:18 +0700</pubDate>
+      <guid>//localhost:1313/tags/sql/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Blog</title>
+      <link>//localhost:1313/tags/blog/</link>
+      <pubDate>Sun, 01 Jun 2025 10:46:13 +0700</pubDate>
+      <guid>//localhost:1313/tags/blog/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Django</title>
+      <link>//localhost:1313/tags/django/</link>
+      <pubDate>Thu, 29 May 2025 22:13:02 +0700</pubDate>
+      <guid>//localhost:1313/tags/django/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Pytest</title>
+      <link>//localhost:1313/tags/pytest/</link>
+      <pubDate>Thu, 29 May 2025 22:13:02 +0700</pubDate>
+      <guid>//localhost:1313/tags/pytest/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Python</title>
+      <link>//localhost:1313/tags/python/</link>
+      <pubDate>Thu, 29 May 2025 22:13:02 +0700</pubDate>
+      <guid>//localhost:1313/tags/python/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Test</title>
+      <link>//localhost:1313/tags/test/</link>
+      <pubDate>Thu, 29 May 2025 22:13:02 +0700</pubDate>
+      <guid>//localhost:1313/tags/test/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Sqlite</title>
+      <link>//localhost:1313/tags/sqlite/</link>
+      <pubDate>Mon, 21 Apr 2025 20:51:39 +0700</pubDate>
+      <guid>//localhost:1313/tags/sqlite/</guid>
+      <description></description>
+    </item>
+  </channel>
+</rss>
