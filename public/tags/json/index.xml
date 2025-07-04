@@ -13,7 +13,7 @@
       <link>//localhost:1313/posts/2025-06-24-understanding-django-queries/</link>
       <pubDate>Tue, 24 Jun 2025 23:13:18 +0700</pubDate>
       <guid>//localhost:1313/posts/2025-06-24-understanding-django-queries/</guid>
-      <description>&lt;p&gt;Django ORM is great, but remember, every Django query we write gets translated into raw SQL.&lt;/p&gt;&#xA;&lt;p&gt;In this post, I’ll show how Django generates those queries, the cost behind them, and how different ORM methods affect performance, in terms of memory, execution time, and how the query is generated.&lt;/p&gt;&#xA;&lt;p&gt;This post will not talk about how to add indexes or SQL best practices. It only covers how Django ORM queries are translated to raw SQL.&lt;/p&gt;</description>
+      <description>&lt;p&gt;Django ORM is great, but remember, every Django query we write gets translated into raw SQL.&lt;/p&gt;&#xA;&lt;p&gt;In this post, I’ll show how Django generates those queries, the cost behind them, and how different ORM methods affect performance, in terms of memory, execution time, and how the query is generated.&lt;/p&gt;&#xA;&lt;p&gt;This post won&amp;rsquo;t cover indexing or general SQL optimization techniques, it focuses purely on how Django ORM translates queries into raw SQL.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Til Postgre Json Jsonb</title>

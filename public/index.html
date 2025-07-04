@@ -40,6 +40,36 @@
 		
 		
 			<article>
+	<h1><a href="//localhost:1313/posts/2025-07-04-til-deferrable-initially-deferred/">Til Deferrable Initially Deferred</a></h1>
+	<b><time>04.07.2025 11:12</time></b>
+	
+	<a href="/tags/postgre">postgre</a>
+	
+	<div>
+		<p>Today at work I learn something new, I face some unexpected behaviour when test the CRUD functionality, it&rsquo;s not bug but it&rsquo;s clearly how stupid I am.</p>
+<p>Let say we have table structure like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Parent  
+</span></span><span style="display:flex;"><span>Id  
+</span></span><span style="display:flex;"><span>Name  
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Child  
+</span></span><span style="display:flex;"><span>Id  
+</span></span><span style="display:flex;"><span>parent_id  
+</span></span><span style="display:flex;"><span>Name  
+</span></span></code></pre></div><p>So I create two test, number 1 test happy path</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>-- parent already exist with id <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>INSERT INTO child <span style="color:#f92672">(</span>parent_id, name<span style="color:#f92672">)</span>  
+</span></span><span style="display:flex;"><span>VALUES <span style="color:#f92672">(</span>1, <span style="color:#e6db74">&#39;childs&#39;</span><span style="color:#f92672">)</span>;  
+</span></span></code></pre></div><p>Expected no error and pass.</p>
+<p>Second I tried to insert not existent parent into child</p>
+		
+			<a href="//localhost:1313/posts/2025-07-04-til-deferrable-initially-deferred/">Read more...</a>
+		
+	</div>
+</article>
+
+		
+			<article>
 	<h1><a href="//localhost:1313/posts/2025-06-24-understanding-django-queries/">Understanding Django Queries</a></h1>
 	<b><time>24.06.2025 23:13</time></b>
 	
@@ -48,6 +78,10 @@
 	<a href="/tags/postgre">postgre</a>
 	
 	<a href="/tags/json">json</a>
+	
+	<a href="/tags/python">python</a>
+	
+	<a href="/tags/django">django</a>
 	
 	<div>
 		<p>Django ORM is great, but remember, every Django query we write gets translated into raw SQL.</p>

@@ -10,6 +10,8 @@ tags:
   - sql
   - postgre
   - json
+  - python
+  - django
 ---
 Django ORM is great, but remember, every Django query we write gets translated into raw SQL.
 

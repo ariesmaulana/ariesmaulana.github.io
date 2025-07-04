@@ -3,27 +3,36 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>//localhost:1313/</loc>
-    <lastmod>2025-06-24T23:13:18+07:00</lastmod>
+    <lastmod>2025-07-04T11:12:56+07:00</lastmod>
   </url><url>
     <loc>//localhost:1313/categories/</loc>
-    <lastmod>2025-06-24T23:13:18+07:00</lastmod>
+    <lastmod>2025-07-04T11:12:56+07:00</lastmod>
   </url><url>
     <loc>//localhost:1313/categories/default/</loc>
+    <lastmod>2025-07-04T11:12:56+07:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/tags/postgre/</loc>
+    <lastmod>2025-07-04T11:12:56+07:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/posts/</loc>
+    <lastmod>2025-07-04T11:12:56+07:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/tags/</loc>
+    <lastmod>2025-07-04T11:12:56+07:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/posts/2025-07-04-til-deferrable-initially-deferred/</loc>
+    <lastmod>2025-07-04T11:12:56+07:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/tags/django/</loc>
     <lastmod>2025-06-24T23:13:18+07:00</lastmod>
   </url><url>
     <loc>//localhost:1313/tags/json/</loc>
     <lastmod>2025-06-24T23:13:18+07:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/tags/postgre/</loc>
-    <lastmod>2025-06-24T23:13:18+07:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/posts/</loc>
+    <loc>//localhost:1313/tags/python/</loc>
     <lastmod>2025-06-24T23:13:18+07:00</lastmod>
   </url><url>
     <loc>//localhost:1313/tags/sql/</loc>
-    <lastmod>2025-06-24T23:13:18+07:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/tags/</loc>
     <lastmod>2025-06-24T23:13:18+07:00</lastmod>
   </url><url>
     <loc>//localhost:1313/posts/2025-06-24-understanding-django-queries/</loc>
@@ -35,16 +44,10 @@
     <loc>//localhost:1313/posts/2025-06-01-hosting-a-blog-on-an-old-laptop/</loc>
     <lastmod>2025-06-01T10:46:13+07:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/tags/django/</loc>
-    <lastmod>2025-05-29T22:13:02+07:00</lastmod>
-  </url><url>
     <loc>//localhost:1313/posts/2025-05-29-mock-the-failure/</loc>
     <lastmod>2025-05-29T22:13:02+07:00</lastmod>
   </url><url>
     <loc>//localhost:1313/tags/pytest/</loc>
-    <lastmod>2025-05-29T22:13:02+07:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/tags/python/</loc>
     <lastmod>2025-05-29T22:13:02+07:00</lastmod>
   </url><url>
     <loc>//localhost:1313/tags/test/</loc>

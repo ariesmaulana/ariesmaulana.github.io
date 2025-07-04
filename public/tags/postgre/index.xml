@@ -6,14 +6,21 @@
     <description>Recent content in Postgre on </description>
     <generator>Hugo</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 24 Jun 2025 23:13:18 +0700</lastBuildDate>
+    <lastBuildDate>Fri, 04 Jul 2025 11:12:56 +0700</lastBuildDate>
     <atom:link href="//localhost:1313/tags/postgre/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Til Deferrable Initially Deferred</title>
+      <link>//localhost:1313/posts/2025-07-04-til-deferrable-initially-deferred/</link>
+      <pubDate>Fri, 04 Jul 2025 11:12:56 +0700</pubDate>
+      <guid>//localhost:1313/posts/2025-07-04-til-deferrable-initially-deferred/</guid>
+      <description>&lt;p&gt;Today at work I learn something new, I face some unexpected behaviour when test the CRUD functionality, it&amp;rsquo;s not bug but it&amp;rsquo;s clearly how stupid I am.&lt;/p&gt;&#xA;&lt;p&gt;Let say we have table structure like this:&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Parent  &#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Id  &#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Name  &#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Child  &#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Id  &#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;parent_id  &#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Name  &#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;So I create two test, number 1 test happy path&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;-- parent already exist with id &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;INSERT INTO child &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;parent_id, name&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;  &#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;VALUES &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;1, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;childs&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;;  &#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Expected no error and pass.&lt;/p&gt;&#xA;&lt;p&gt;Second I tried to insert not existent parent into child&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Understanding Django Queries</title>
       <link>//localhost:1313/posts/2025-06-24-understanding-django-queries/</link>
       <pubDate>Tue, 24 Jun 2025 23:13:18 +0700</pubDate>
       <guid>//localhost:1313/posts/2025-06-24-understanding-django-queries/</guid>
-      <description>&lt;p&gt;Django ORM is great, but remember, every Django query we write gets translated into raw SQL.&lt;/p&gt;&#xA;&lt;p&gt;In this post, I’ll show how Django generates those queries, the cost behind them, and how different ORM methods affect performance, in terms of memory, execution time, and how the query is generated.&lt;/p&gt;&#xA;&lt;p&gt;This post will not talk about how to add indexes or SQL best practices. It only covers how Django ORM queries are translated to raw SQL.&lt;/p&gt;</description>
+      <description>&lt;p&gt;Django ORM is great, but remember, every Django query we write gets translated into raw SQL.&lt;/p&gt;&#xA;&lt;p&gt;In this post, I’ll show how Django generates those queries, the cost behind them, and how different ORM methods affect performance, in terms of memory, execution time, and how the query is generated.&lt;/p&gt;&#xA;&lt;p&gt;This post won&amp;rsquo;t cover indexing or general SQL optimization techniques, it focuses purely on how Django ORM translates queries into raw SQL.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Making Raw SQL Easier to Read with Row Factory</title>
