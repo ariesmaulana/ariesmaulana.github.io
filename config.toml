@@ -1,3 +1,7 @@
+baseURL = 'https://notes.arsmp.com'
+languageCode = 'en-us'
+title = 'Notes Arsmp'
+
 # Parameters
 [params]
     subtitle = "Note Arsmp!"
